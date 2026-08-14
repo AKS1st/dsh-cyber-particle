@@ -12,6 +12,16 @@
 依赖 DeepSeek Harness 的 dsh web shell（client bundle 经 `__ModuleLoader__`
 模块系统注册），本身无 npm 运行时依赖。
 
+## 效果预览
+
+亮色主题：
+
+![亮色主题效果](assets/image_light.png)
+
+暗色主题：
+
+![暗色主题效果](assets/image_dark.png)
+
 ## 文件说明
 
 | 文件 | 作用 |
@@ -22,6 +32,7 @@
 | `install.sh` | 一键安装到当前 DSH web profile |
 | `README.md` | 本文档（中文，主文档） |
 | `README.en.md` | 英文版文档 |
+| `assets/` | 效果预览截图（亮色 / 暗色主题） |
 
 ## 安装（当前已安装时无需重复）
 

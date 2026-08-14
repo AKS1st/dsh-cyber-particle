@@ -8,6 +8,16 @@ Adds an animated particle-network background to the DeepSeek Harness web UI: gra
 
 Requires the DeepSeek Harness dsh web shell (the client bundle registers through the `__ModuleLoader__` module system); the plugin itself has no npm runtime dependencies.
 
+## Preview
+
+Light theme:
+
+![Light theme](assets/image_light.png)
+
+Dark theme:
+
+![Dark theme](assets/image_dark.png)
+
 ## Files
 
 | File | Purpose |
@@ -18,6 +28,7 @@ Requires the DeepSeek Harness dsh web shell (the client bundle registers through
 | `install.sh` | One-command installer into the current DSH web profile |
 | `README.en.md` | This document (English) |
 | `README.md` | Chinese documentation (primary) |
+| `assets/` | Preview screenshots (light / dark theme) |
 
 ## Install (no need to re-run if already installed)
 
