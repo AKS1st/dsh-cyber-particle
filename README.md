@@ -1,5 +1,7 @@
 # cyber-particle — DeepSeek Harness 粒子网络背景插件
 
+[English](./README.en.md) | 中文
+
 为 DeepSeek Harness Web 界面提供动态粒子网络效果：灰白散点随机从屏幕边缘
 飞入、直线穿过界面、离开后从新的边缘再次进入；彼此距离小于阈值的粒子自动
 连线，形成不断变化的网状结构。
@@ -18,6 +20,8 @@
 | `client.js` | 浏览器端 bundle：`window.__ModuleLoader__.load({ id, factory })` 注册插件，Canvas 粒子动画 |
 | `index.js` | Node 半部：空 `apply`，使插件行在 host loader 中激活 |
 | `install.sh` | 一键安装到当前 DSH web profile |
+| `README.md` | 本文档（中文，主文档） |
+| `README.en.md` | 英文版文档 |
 
 ## 安装（当前已安装时无需重复）
 
@@ -41,7 +45,7 @@
 
 ```bash
 # 1. 从 patch 中删除 cyber-particle 行（编辑 cordis.patch.yml）
-# 2. 删除包目录
+# 2. 删除包目录（DSH_HOME 未设置时默认 ~/.dsh）
 rm -rf "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/cyber-particle"
 # 3. 重启 dsh web
 ```
