@@ -61,22 +61,6 @@ dsh plugin --profile web remove cyber-particle
 dsh web
 ```
 
-## 从旧版（install.sh）迁移
-
-早期版本通过 `install.sh` 手动安装：包文件直接复制到
-`$DSH_HOME/profiles/web/node_modules/cyber-particle/`，插件行手写进 profile
-的 `cordis.patch.yml`。若已按旧方式安装，迁移到标准方式：
-
-```bash
-# 1. 删除 profile 用户层里手写的 cyber-particle 行（编辑
-#    $DSH_HOME/profiles/web/cordis.patch.yml），避免与 bundle 层重复挂载
-# 2. 删除旧包目录（DSH_HOME 未设置时默认 ~/.dsh）
-rm -rf "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/cyber-particle"
-# 3. 用标准方式重新安装
-dsh plugin --profile web add /path/to/dsh-cyber-particle
-# 4. 重启 dsh web
-```
-
 ## 效果参数（client.js 顶部常量）
 
 | 常量 | 默认 | 含义 |

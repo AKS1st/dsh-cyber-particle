@@ -60,24 +60,6 @@ dsh plugin --profile web remove cyber-particle
 dsh web
 ```
 
-## Migrating from the legacy install.sh flow
-
-Early versions were installed by `install.sh`: package files were copied
-straight into `$DSH_HOME/profiles/web/node_modules/cyber-particle/` and the
-plugin row was hand-written into the profile's `cordis.patch.yml`. To migrate
-an existing legacy install to the standard flow:
-
-```bash
-# 1. Remove the hand-written cyber-particle row from the profile's user layer
-#    (edit $DSH_HOME/profiles/web/cordis.patch.yml) so it does not duplicate
-#    the bundle layer
-# 2. Delete the old package directory (defaults to ~/.dsh when DSH_HOME is unset)
-rm -rf "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/cyber-particle"
-# 3. Reinstall the standard way
-dsh plugin --profile web add /path/to/dsh-cyber-particle
-# 4. Restart dsh web
-```
-
 ## Tuning parameters (constants at the top of client.js)
 
 | Constant | Default | Meaning |
