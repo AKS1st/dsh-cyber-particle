@@ -1,5 +1,7 @@
 {
   "name": "cyber-particle",
+  "version": "0.1.0",
+  "description": "Particle-network background overlay for the DeepSeek Harness Web shell.",
   "private": true,
   "type": "module",
   "exports": {
@@ -8,8 +10,16 @@
     "./package.json": "./package.json"
   },
   "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web"
     }
-  }
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml"
+  ]
 }

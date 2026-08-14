@@ -22,37 +22,60 @@ Dark theme:
 
 | File | Purpose |
 | --- | --- |
-| `package.json` | Package declaration: `dsh.client.platform: "web"`, `./client` export (consumed by the client-modules scanner) |
+| `package.json` | Package declaration: `dsh.bundle.patch` (standard bundle mount), `dsh.client.platform: "web"`, `./client` export (consumed by the client-modules scanner) |
 | `client.js` | Browser bundle: registers the plugin via `window.__ModuleLoader__.load({ id, factory })`, Canvas particle animation |
 | `index.js` | Node half: empty `apply` so the plugin row activates in the host loader |
-| `install.sh` | One-command installer into the current DSH web profile |
+| `cordis.patch.yml` | Bundle patch layer: mounted automatically by `dsh plugin` as a profile layer |
 | `README.en.md` | This document (English) |
 | `README.md` | Chinese documentation (primary) |
 | `assets/` | Preview screenshots (light / dark theme) |
 
-## Install (no need to re-run if already installed)
+## Install (standard bundle flow)
 
-```bash
-./install.sh
+This repo is a standard dsh bundle: package.json declares `dsh.bundle.patch`
+(`cordis.patch.yml`), so `dsh plugin` adds it to `dsh.profile.bundles`
+automatically and the patch layer mounts the plugin row.
+
+```sh
+# Option 1: local directory
+dsh plugin --profile web add /path/to/dsh-cyber-particle
+
+# Option 2: install from the git repository
+dsh plugin --profile web add github:AKS1st/dsh-cyber-particle
+
+# Restart the web service for the profile change to take effect
+dsh web
 ```
 
-The script copies the three files to `$DSH_HOME/profiles/web/node_modules/cyber-particle/` and ensures `$DSH_HOME/profiles/web/cordis.patch.yml` contains the mount row:
-
-```yaml
-- insert:
-    - id: cyber-particle
-      name: cyber-particle
-```
-
-**When it takes effect**: profile composition changes require a restart of dsh web (`dsh web`). After the restart the plugin loads automatically on every startup — no approval needed, and it survives process restarts.
+`dsh plugin add` runs pnpm inside the profile directory; on detecting the
+`dsh.bundle` declaration it appends `cyber-particle` to `dsh.profile.bundles`
+and its `cordis.patch.yml` mounts the plugin row as a layer. After the restart
+the plugin loads automatically on every startup — no approval needed, and it
+survives process restarts.
 
 ## Uninstall
 
+```sh
+dsh plugin --profile web remove cyber-particle
+dsh web
+```
+
+## Migrating from the legacy install.sh flow
+
+Early versions were installed by `install.sh`: package files were copied
+straight into `$DSH_HOME/profiles/web/node_modules/cyber-particle/` and the
+plugin row was hand-written into the profile's `cordis.patch.yml`. To migrate
+an existing legacy install to the standard flow:
+
 ```bash
-# 1. Remove the cyber-particle row from the patch (edit cordis.patch.yml)
-# 2. Delete the package directory (defaults to ~/.dsh when DSH_HOME is unset)
+# 1. Remove the hand-written cyber-particle row from the profile's user layer
+#    (edit $DSH_HOME/profiles/web/cordis.patch.yml) so it does not duplicate
+#    the bundle layer
+# 2. Delete the old package directory (defaults to ~/.dsh when DSH_HOME is unset)
 rm -rf "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/cyber-particle"
-# 3. Restart dsh web
+# 3. Reinstall the standard way
+dsh plugin --profile web add /path/to/dsh-cyber-particle
+# 4. Restart dsh web
 ```
 
 ## Tuning parameters (constants at the top of client.js)

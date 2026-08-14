@@ -1,0 +1,7 @@
+# cyber-particle: particle-network background for the DSH Web shell.
+# Inserted into the web profile by `dsh plugin --profile web add <this repo>`:
+# the package declares dsh.bundle.patch in package.json, so `dsh plugin` adds
+# it to dsh.profile.bundles and this layer mounts the plugin row.
+- insert:
+    - id: cyber-particle
+      name: cyber-particle
