@@ -1,8 +1,14 @@
 # cyber-particle — DeepSeek Harness 粒子网络背景插件
 
-为 DeepSeek Harness Web 界面提供动态粒子网络背景：灰白散点随机从屏幕边缘
+为 DeepSeek Harness Web 界面提供动态粒子网络效果：灰白散点随机从屏幕边缘
 飞入、直线穿过界面、离开后从新的边缘再次进入；彼此距离小于阈值的粒子自动
-连线，形成不断变化的网状结构。不改动任何界面配色，不影响鼠标/键盘交互。
+连线，形成不断变化的网状结构。
+
+粒子渲染在界面全屏覆盖层（`shell.overlay`）上、位于 UI 内容之上，但整个
+覆盖层 `pointer-events` 穿透，不影响鼠标/键盘交互，也不改动任何界面配色。
+
+依赖 DeepSeek Harness 的 dsh web shell（client bundle 经 `__ModuleLoader__`
+模块系统注册），本身无 npm 运行时依赖。
 
 ## 文件说明
 
@@ -36,7 +42,7 @@
 ```bash
 # 1. 从 patch 中删除 cyber-particle 行（编辑 cordis.patch.yml）
 # 2. 删除包目录
-rm -rf "$HOME/.dsh/profiles/web/node_modules/cyber-particle"
+rm -rf "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/cyber-particle"
 # 3. 重启 dsh web
 ```
 

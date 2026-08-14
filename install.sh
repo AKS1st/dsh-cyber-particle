@@ -19,7 +19,7 @@ cp package.json index.js client.js "$PKG/"
 echo "installed package files -> $PKG"
 
 # 2. Patch row (insert block, appended only if missing)
-if [ -f "$PATCH" ] && grep -q 'id: cyber-particle' "$PATCH"; then
+if [ -f "$PATCH" ] && grep -qE '^\s{2,}- id: cyber-particle([[:space:]]|$)' "$PATCH"; then
   echo "patch row already present in $PATCH"
 else
   INSERT_BLOCK='- insert:

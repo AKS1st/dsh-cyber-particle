@@ -1,3 +1,5 @@
+if (typeof window === 'undefined' || typeof window.__ModuleLoader__ === 'undefined') return
+
 window.__ModuleLoader__.load({
   id: 'cyber-particle',
   factory(require) {
@@ -20,10 +22,15 @@ window.__ModuleLoader__.load({
               const LINK = 180
               const rand = (a, b) => a + Math.random() * (b - a)
 
+              let cw = 0
+              let ch = 0
+
               const resize = () => {
-                const cw = canvasNode.clientWidth
-                const ch = canvasNode.clientHeight
-                if (cw === 0 || ch === 0) return false
+                const rw = canvasNode.clientWidth
+                const rh = canvasNode.clientHeight
+                if (rw === 0 || rh === 0) return false
+                cw = rw
+                ch = rh
                 canvasNode.width = cw
                 canvasNode.height = ch
                 return true
@@ -32,8 +39,8 @@ window.__ModuleLoader__.load({
 
               const spawn = (inside) => {
                 let x, y, angle
-                const w = canvasNode.width
-                const h = canvasNode.height
+                const w = cw
+                const h = ch
                 const edge = Math.floor(Math.random() * 4)
                 if (edge === 0) { x = inside ? rand(0, w) : -24; y = rand(0, h); angle = rand(-1.1, 1.1) - Math.PI / 2 }
                 else if (edge === 1) { x = inside ? rand(0, w) : w + 24; y = rand(0, h); angle = rand(-1.1, 1.1) + Math.PI / 2 }
@@ -47,13 +54,17 @@ window.__ModuleLoader__.load({
               for (let i = 0; i < COUNT; i++) particles.push(spawn(true))
 
               const draw = () => {
-                const w = canvasNode.clientWidth
-                const h = canvasNode.clientHeight
-                if (w === 0 || h === 0) return
-                if (canvasNode.width !== w || canvasNode.height !== h) {
-                  canvasNode.width = w
-                  canvasNode.height = h
+                const rw = canvasNode.clientWidth
+                const rh = canvasNode.clientHeight
+                if (rw === 0 || rh === 0) return
+                if (rw !== cw || rh !== ch) {
+                  cw = rw
+                  ch = rh
+                  canvasNode.width = cw
+                  canvasNode.height = ch
                 }
+                const w = cw
+                const h = ch
                 c.clearRect(0, 0, w, h)
                 for (const p of particles) {
                   p.x += p.vx
@@ -92,13 +103,33 @@ window.__ModuleLoader__.load({
               }
 
               draw()
+
               let reduce = false
               try {
                 reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
               } catch (e) { /* ignore */ }
               if (reduce) return
-              const dispose = ctx.interval(draw, 33)
-              return dispose
+
+              let timer = null
+              const stop = () => {
+                if (timer !== null) {
+                  timer()
+                  timer = null
+                }
+              }
+              const start = () => {
+                if (timer === null) timer = ctx.interval(draw, 33)
+              }
+              const onVisibility = () => {
+                if (document.hidden) stop()
+                else start()
+              }
+              document.addEventListener('visibilitychange', onVisibility)
+              if (!document.hidden) start()
+              return () => {
+                document.removeEventListener('visibilitychange', onVisibility)
+                stop()
+              }
             }, [canvasNode])
 
             return React.createElement('div', {
