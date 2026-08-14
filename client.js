@@ -20,6 +20,12 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
                 const COUNT = 52
                 const LINK = 180
                 const rand = (a, b) => a + Math.random() * (b - a)
+                // Precomputed link styles (alpha by distance bucket) to avoid per-frame string allocation.
+                const LINK_STYLES = []
+                for (let i = 0; i <= 20; i++) {
+                  LINK_STYLES.push('rgba(110, 122, 140, ' + (0.42 * (1 - i / 20)).toFixed(3) + ')')
+                }
+                let frame = 0
 
                 let cw = 0
                 let ch = 0
@@ -53,14 +59,20 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
                 for (let i = 0; i < COUNT; i++) particles.push(spawn(true))
 
                 const draw = () => {
-                  const rw = canvasNode.clientWidth
-                  const rh = canvasNode.clientHeight
-                  if (rw === 0 || rh === 0) return
-                  if (rw !== cw || rh !== ch) {
-                    cw = rw
-                    ch = rh
-                    canvasNode.width = cw
-                    canvasNode.height = ch
+                  // Size probe throttled to ~every 0.4s: reading clientWidth/Height can force
+                  // a synchronous layout when the page is dirty, which stalls the animation
+                  // whenever the host UI does layout work.
+                  frame++
+                  if (frame % 12 === 0) {
+                    const rw = canvasNode.clientWidth
+                    const rh = canvasNode.clientHeight
+                    if (rw === 0 || rh === 0) return
+                    if (rw !== cw || rh !== ch) {
+                      cw = rw
+                      ch = rh
+                      canvasNode.width = cw
+                      canvasNode.height = ch
+                    }
                   }
                   const w = cw
                   const h = ch
@@ -85,7 +97,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
                       const d2 = dx * dx + dy * dy
                       if (d2 < LINK * LINK) {
                         const t = 1 - Math.sqrt(d2) / LINK
-                        c.strokeStyle = 'rgba(110, 122, 140, ' + (0.42 * t).toFixed(3) + ')'
+                        c.strokeStyle = LINK_STYLES[Math.round(t * 20)]
                         c.beginPath()
                         c.moveTo(a.x, a.y)
                         c.lineTo(b.x, b.y)
