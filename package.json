@@ -21,5 +21,19 @@
     "index.js",
     "client.js",
     "cordis.patch.yml"
-  ]
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "dsh-plugin",
+    "web-ui",
+    "background",
+    "particles"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AKS1st/dsh-cyber-particle.git"
+  }
 }
