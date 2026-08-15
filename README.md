@@ -18,14 +18,19 @@
 
 ## 安装
 
+从 GitHub 仓库安装（构建在 `prepare` 脚本里自动执行）：
+
 ```sh
-# 方式一：本地目录
-dsh plugin --profile web add /path/to/dsh-cyber-particle
-
-# 方式二：从 git 仓库安装
 dsh plugin --profile web add github:AKS1st/dsh-cyber-particle
+dsh web   # 重启 web 服务使 profile 生效
+```
 
-# 重启 web 服务使 profile 生效
+本地开发（先构建再安装）：
+
+```sh
+npm install
+npm run build
+dsh plugin --profile web add /path/to/dsh-cyber-particle
 dsh web
 ```
 
