@@ -265,11 +265,11 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
 
           // ---------- 设置页 ----------
           const SLIDER_FIELDS = [
-            { key: 'count', label: '粒子数量', min: 10, max: 120, step: 1, decimals: 0 },
-            { key: 'dotRadius', label: '粒子半径', min: 0.5, max: 6, step: 0.1, decimals: 1 },
-            { key: 'lineWidth', label: '线条粗细', min: 0.2, max: 4, step: 0.1, decimals: 1 },
-            { key: 'linkDist', label: '连线距离', min: 40, max: 400, step: 5, decimals: 0 },
-            { key: 'speed', label: '移动速度', min: 0.5, max: 8, step: 0.1, decimals: 1 },
+            { key: 'count', label: '粒子数量', min: 10, max: 120, step: 1, low: '少', high: '多' },
+            { key: 'dotRadius', label: '粒子半径', min: 0.5, max: 6, step: 0.1, low: '小', high: '大' },
+            { key: 'lineWidth', label: '线条粗细', min: 0.2, max: 4, step: 0.1, low: '细', high: '粗' },
+            { key: 'linkDist', label: '连线距离', min: 40, max: 400, step: 5, low: '近', high: '远' },
+            { key: 'speed', label: '移动速度', min: 0.5, max: 8, step: 0.1, low: '慢', high: '快' },
           ]
           const COLOR_FIELDS = [
             { key: 'particleColor', label: '粒子颜色' },
@@ -282,14 +282,25 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
             return value
           }
 
+          // 把数值映射成定性档位，避免不同屏幕尺寸下绝对数值引起歧义。
+          function describe(value, min, max, low, high) {
+            const t = clamp((value - min) / (max - min), 0, 1)
+            if (t < 0.2) return '极' + low
+            if (t < 0.4) return low
+            if (t < 0.6) return '适中'
+            if (t < 0.8) return high
+            return '极' + high
+          }
+
           function ParticleSettings({ store, updateConfig, resetConfig }) {
             const cfg = useStore(store)
 
             const sliderRows = SLIDER_FIELDS.map((field) => {
               const value = Number(cfg[field.key])
-              const shown = field.decimals === 0 ? String(Math.round(value)) : value.toFixed(field.decimals)
+              const level = describe(value, field.min, field.max, field.low, field.high)
               return React.createElement('div', { className: 'cp-field', key: field.key },
                 React.createElement('div', { className: 'cp-field-label' }, field.label),
+                React.createElement('span', { className: 'cp-cap' }, field.low),
                 React.createElement('input', {
                   className: 'cp-range',
                   type: 'range',
@@ -299,7 +310,8 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
                   value,
                   onChange: (e) => updateConfig({ [field.key]: Number(e.target.value) }),
                 }),
-                React.createElement('div', { className: 'cp-value' }, shown))
+                React.createElement('span', { className: 'cp-cap' }, field.high),
+                React.createElement('div', { className: 'cp-badge' }, level))
             })
 
             const colorRows = COLOR_FIELDS.map((field) => {
@@ -322,7 +334,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
               sliderRows,
               colorRows,
               React.createElement('div', { className: 'cp-hint' },
-                '调整实时生效并自动保存。粒子数量、连线距离、粗细和半径会随屏幕尺寸/缩放按比例归一化，在 27" 2K 与 13" 4K@200% 之间保持一致的观感。'))
+                '调整实时生效并自动保存。这里的多少是相对感受，插件会按屏幕尺寸与缩放自动归一化，让不同设备上看起来一致。'))
           }
 
           // ---------- 样式 ----------
@@ -337,7 +349,8 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
             .cp-field:last-of-type { border-bottom: none; }
             .cp-field-label { width: 84px; flex: none; font-size: 12px; color: var(--dsw-alias-label-secondary); }
             .cp-range { flex: 1; min-width: 0; accent-color: var(--dsw-alias-brand-primary); }
-            .cp-value { width: 52px; flex: none; text-align: right; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+            .cp-cap { flex: none; width: 16px; text-align: center; font-size: 11px; color: var(--dsw-alias-label-secondary); }
+            .cp-badge { flex: none; min-width: 40px; text-align: center; font-size: 12px; color: var(--dsw-alias-brand-primary); border: 1px solid var(--dsw-alias-border-l2); border-radius: 999px; padding: 1px 8px; background: var(--dsw-alias-bg-layer-2); }
             .cp-color { width: 42px; height: 26px; padding: 0; border: 1px solid var(--dsw-alias-border-l2); border-radius: 6px; background: transparent; cursor: pointer; }
             .cp-hex { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--dsw-alias-label-secondary); }
             .cp-hint { font-size: 11px; color: var(--dsw-alias-label-secondary); margin-top: 12px; line-height: 1.6; }
