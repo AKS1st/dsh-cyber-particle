@@ -36,11 +36,61 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
         return 'rgba(' + hexToRgb(hex) + ', ' + alpha + ')'
       }
 
+      // ---------- 国际化字典 ----------
+      const NS = 'cyber-particle'
+      const zh = {
+        title: '粒子背景',
+        reset: '重置为默认',
+        count: '粒子数量',
+        dotRadius: '粒子半径',
+        lineWidth: '线条粗细',
+        linkDist: '连线距离',
+        speed: '移动速度',
+        particleColor: '粒子颜色',
+        lineColor: '线条颜色',
+        few: '少', many: '多',
+        small: '小', large: '大',
+        thin: '细', thick: '粗',
+        near: '近', far: '远',
+        slow: '慢', fast: '快',
+        very: '极',
+        medium: '适中',
+        hint: '调整实时生效并自动保存。这里的多少是相对感受，插件会按屏幕尺寸与缩放自动归一化，让不同设备上看起来一致。',
+      }
+      const en = {
+        title: 'Particle Background',
+        reset: 'Reset to default',
+        count: 'Particle count',
+        dotRadius: 'Particle size',
+        lineWidth: 'Line width',
+        linkDist: 'Link distance',
+        speed: 'Speed',
+        particleColor: 'Particle color',
+        lineColor: 'Line color',
+        few: 'Few', many: 'Many',
+        small: 'Small', large: 'Large',
+        thin: 'Thin', thick: 'Thick',
+        near: 'Near', far: 'Far',
+        slow: 'Slow', fast: 'Fast',
+        very: 'Very ',
+        medium: 'Medium',
+        hint: 'Adjustments apply live and save automatically. Levels are relative — the plugin normalizes across screen sizes and scaling so it looks consistent on different devices.',
+      }
+
       return {
         inject: ['timer'],
         apply(ctx) {
           const slots = ctx.get('slots')
           if (slots === undefined) return
+
+          // ---------- 国际化 ----------
+          const locale = ctx.get('locale')
+          let t = (key) => (zh[key] !== undefined ? zh[key] : key)
+          if (locale !== undefined) {
+            t = locale.bind(NS)
+            const disposeLocale = locale.register(NS, { zh, en })
+            ctx.on('dispose', () => { disposeLocale() })
+          }
 
           // ---------- 共享配置 store ----------
           let config = { ...DEFAULTS }
@@ -265,15 +315,15 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
 
           // ---------- 设置页 ----------
           const SLIDER_FIELDS = [
-            { key: 'count', label: '粒子数量', min: 10, max: 120, step: 1, low: '少', high: '多' },
-            { key: 'dotRadius', label: '粒子半径', min: 0.5, max: 6, step: 0.1, low: '小', high: '大' },
-            { key: 'lineWidth', label: '线条粗细', min: 0.2, max: 4, step: 0.1, low: '细', high: '粗' },
-            { key: 'linkDist', label: '连线距离', min: 40, max: 400, step: 5, low: '近', high: '远' },
-            { key: 'speed', label: '移动速度', min: 0.5, max: 8, step: 0.1, low: '慢', high: '快' },
+            { key: 'count', labelKey: 'count', min: 10, max: 120, step: 1, lowKey: 'few', highKey: 'many' },
+            { key: 'dotRadius', labelKey: 'dotRadius', min: 0.5, max: 6, step: 0.1, lowKey: 'small', highKey: 'large' },
+            { key: 'lineWidth', labelKey: 'lineWidth', min: 0.2, max: 4, step: 0.1, lowKey: 'thin', highKey: 'thick' },
+            { key: 'linkDist', labelKey: 'linkDist', min: 40, max: 400, step: 5, lowKey: 'near', highKey: 'far' },
+            { key: 'speed', labelKey: 'speed', min: 0.5, max: 8, step: 0.1, lowKey: 'slow', highKey: 'fast' },
           ]
           const COLOR_FIELDS = [
-            { key: 'particleColor', label: '粒子颜色' },
-            { key: 'lineColor', label: '线条颜色' },
+            { key: 'particleColor', labelKey: 'particleColor' },
+            { key: 'lineColor', labelKey: 'lineColor' },
           ]
 
           function useStore(store) {
@@ -283,24 +333,24 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
           }
 
           // 把数值映射成定性档位，避免不同屏幕尺寸下绝对数值引起歧义。
-          function describe(value, min, max, low, high) {
-            const t = clamp((value - min) / (max - min), 0, 1)
-            if (t < 0.2) return '极' + low
-            if (t < 0.4) return low
-            if (t < 0.6) return '适中'
-            if (t < 0.8) return high
-            return '极' + high
+          function describe(t, value, min, max, lowKey, highKey) {
+            const r = clamp((value - min) / (max - min), 0, 1)
+            if (r < 0.2) return t('very') + t(lowKey)
+            if (r < 0.4) return t(lowKey)
+            if (r < 0.6) return t('medium')
+            if (r < 0.8) return t(highKey)
+            return t('very') + t(highKey)
           }
 
-          function ParticleSettings({ store, updateConfig, resetConfig }) {
+          function ParticleSettings({ store, updateConfig, resetConfig, t }) {
             const cfg = useStore(store)
 
             const sliderRows = SLIDER_FIELDS.map((field) => {
               const value = Number(cfg[field.key])
-              const level = describe(value, field.min, field.max, field.low, field.high)
+              const level = describe(t, value, field.min, field.max, field.lowKey, field.highKey)
               return React.createElement('div', { className: 'cp-field', key: field.key },
-                React.createElement('div', { className: 'cp-field-label' }, field.label),
-                React.createElement('span', { className: 'cp-cap' }, field.low),
+                React.createElement('div', { className: 'cp-field-label' }, t(field.labelKey)),
+                React.createElement('span', { className: 'cp-cap' }, t(field.lowKey)),
                 React.createElement('input', {
                   className: 'cp-range',
                   type: 'range',
@@ -310,14 +360,14 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
                   value,
                   onChange: (e) => updateConfig({ [field.key]: Number(e.target.value) }),
                 }),
-                React.createElement('span', { className: 'cp-cap' }, field.high),
+                React.createElement('span', { className: 'cp-cap' }, t(field.highKey)),
                 React.createElement('div', { className: 'cp-badge' }, level))
             })
 
             const colorRows = COLOR_FIELDS.map((field) => {
               const value = String(cfg[field.key] || '')
               return React.createElement('div', { className: 'cp-field', key: field.key },
-                React.createElement('div', { className: 'cp-field-label' }, field.label),
+                React.createElement('div', { className: 'cp-field-label' }, t(field.labelKey)),
                 React.createElement('input', {
                   className: 'cp-color',
                   type: 'color',
@@ -329,12 +379,11 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
 
             return React.createElement('div', { className: 'cp-page' },
               React.createElement('div', { className: 'cp-head' },
-                React.createElement('div', { className: 'cp-title' }, '粒子背景'),
-                React.createElement('button', { className: 'cp-btn', onClick: resetConfig }, '重置为默认')),
+                React.createElement('div', { className: 'cp-title' }, t('title')),
+                React.createElement('button', { className: 'cp-btn', onClick: resetConfig }, t('reset'))),
               sliderRows,
               colorRows,
-              React.createElement('div', { className: 'cp-hint' },
-                '调整实时生效并自动保存。这里的多少是相对感受，插件会按屏幕尺寸与缩放自动归一化，让不同设备上看起来一致。'))
+              React.createElement('div', { className: 'cp-hint' }, t('hint')))
           }
 
           // ---------- 样式 ----------
@@ -367,8 +416,8 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
           ))
 
           slots.inject('settings.section', () => slots.register(
-            { name: 'settings.section', id: 'cyber-particle', order: 35, label: '粒子背景' },
-            () => React.createElement(ParticleSettings, { store, updateConfig, resetConfig }),
+            { name: 'settings.section', id: 'cyber-particle', order: 35, label: () => t('title'), locale: NS },
+            (props) => React.createElement(ParticleSettings, { store, updateConfig, resetConfig, t: props.t }),
           ))
         },
       }
