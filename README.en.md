@@ -6,6 +6,8 @@ Adds an animated particle-network background to the DeepSeek Harness web UI: gra
 
 Rendered in a full-screen overlay with `pointer-events: none`, it never intercepts clicks or scrolling and does not change any UI colors. No npm runtime dependencies.
 
+All logic lives in the browser half: no server-side behavior, no `webServer` route. Settings persist in browser `localStorage` (key `cyber-particle:config`) and restore automatically after a page refresh or restart; dshmarket can toggle the plugin like a skin (no route conflicts).
+
 ## Preview
 
 Light theme:
@@ -36,13 +38,6 @@ dsh plugin --profile web remove cyber-particle
 dsh web
 ```
 
-## Tuning parameters (constants at the top of client.js)
+## Tuning parameters (Settings → Particle Background)
 
-| Constant | Default | Meaning |
-| --- | --- | --- |
-| `COUNT` | 52 | Number of particles |
-| `LINK` | 180 | Link distance threshold (px) |
-| Particle color | `rgba(125,137,153,0.9)` | Gray dots, radius 2.2px |
-| Link color | `rgba(110,122,140, 0.42·(1-d/LINK))` | Stronger when closer |
-
-Restart dsh web after adjusting.
+Adjust particle count, dot radius, line width, link distance, speed, and particle/line colors live from the settings page; values normalize against a 2560×1440 reference viewport and persist automatically to `localStorage`.

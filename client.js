@@ -3,17 +3,17 @@
  *
  * 全屏粒子网络背景（shell.overlay）+ Web 设置里的「粒子背景」设置页
  * （settings.section）：滑动条调节数量/半径/粗细/连线距离/速度，调色板
- * 调节粒子与线条颜色，支持一键重置。配置通过 /__cyber-particle 路由由
- * Host 半部持久化到 $DSH_HOME/cyber-particle.json。
+ * 调节粒子与线条颜色，支持一键重置。配置持久化到浏览器 localStorage。
+ * 插件无任何服务端行为：不注册 webServer 路由，因此可以像皮肤一样被
+ * dshmarket 热切换，不会产生重复路由冲突。
  */
 if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefined') {
   window.__ModuleLoader__.load({
     id: 'cyber-particle',
     factory(require) {
       const React = require('react')
-      const API = '/__cyber-particle'
 
-      // 与 index.js 的 DEFAULTS 保持一致。
+      // 默认值仅存于客户端（无服务端持久化），即「27 寸 2K 参考」观感。
       const DEFAULTS = {
         count: 52,
         dotRadius: 2.2,
@@ -107,35 +107,44 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ !== 'undefin
             },
           }
 
-          const postConfig = (patch) => {
-            fetch(API, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ config: patch }),
-            }).catch(() => {})
+          // 配置持久化到 localStorage（无服务端路由，无网络请求）。
+          const STORAGE_KEY = 'cyber-particle:config'
+          const STORAGE_LIMIT = 16 * 1024
+
+          const persistConfig = (next) => {
+            try {
+              const value = JSON.stringify(next)
+              if (value.length > STORAGE_LIMIT) return
+              localStorage.setItem(STORAGE_KEY, value)
+            } catch {
+              // localStorage 不可用（隐私模式/配额）——保留内存态，本次会话有效。
+            }
           }
 
           const updateConfig = (patch) => {
             store.set(patch)
-            postConfig(patch)
+            persistConfig(store.get())
           }
 
           const resetConfig = () => {
             store.set({ ...DEFAULTS })
-            fetch(API, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: 'reset' }),
-            }).catch(() => {})
+            try {
+              localStorage.removeItem(STORAGE_KEY)
+            } catch {
+              // 同上：清理失败忽略，下次写入会覆盖。
+            }
           }
 
-          // 启动时拉取持久化配置，失败静默（使用默认值）。
-          fetch(API, { cache: 'no-store' })
-            .then((res) => res.json())
-            .then((data) => {
+          // 启动时恢复持久化配置，读取失败静默（使用默认值）。
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY)
+            if (raw) {
+              const data = JSON.parse(raw)
               if (data && typeof data === 'object') store.set(data)
-            })
-            .catch(() => {})
+            }
+          } catch {
+            // 损坏的 JSON 或存储不可用——回退默认值。
+          }
 
           // ---------- 粒子覆盖层 ----------
           function ParticleOverlay({ store }) {

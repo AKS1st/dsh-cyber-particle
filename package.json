@@ -1,7 +1,7 @@
 {
   "name": "cyber-particle",
-  "version": "0.2.2",
-  "description": "Particle-network background overlay for the DeepSeek Harness Web shell.",
+  "version": "0.2.3",
+  "description": "Particle-network background overlay for the DeepSeek Harness Web shell (browser-rendered, localStorage persistence).",
   "private": true,
   "type": "module",
   "exports": {
