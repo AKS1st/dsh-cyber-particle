@@ -14,11 +14,11 @@
 
 亮色主题：
 
-![亮色主题效果](assets/image_light.png)
+![亮色主题效果](assets/preview-light.gif)
 
 暗色主题：
 
-![暗色主题效果](assets/image_dark.png)
+![暗色主题效果](assets/preview-dark.gif)
 
 ## 安装
 
