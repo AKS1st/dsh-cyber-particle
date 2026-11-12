@@ -12,11 +12,11 @@ All logic lives in the browser half: no server-side behavior, no `webServer` rou
 
 Light theme:
 
-![Light theme](assets/image_light.png)
+![Light theme](assets/preview-light.gif)
 
 Dark theme:
 
-![Dark theme](assets/image_dark.png)
+![Dark theme](assets/preview-dark.gif)
 
 ## Install
 
